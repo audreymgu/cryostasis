@@ -1,6 +1,7 @@
 public class Location {
   public string Name;
   public string Description;
+  public bool JustArrived;
   public Location North;
   public Location South;
   public Location East;
@@ -9,6 +10,7 @@ public class Location {
   //CONSTRUCTOR
   public Location(string name) {
     this.Name = name;
+    this.JustArrived = true;
   }
 
   public string GetDescription() {

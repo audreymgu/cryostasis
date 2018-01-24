@@ -32,8 +32,10 @@ public class InteractiveFiction {
       cryo_c.West = reconditioning;
 
       //reconditioning
-      reconditioning.West = cryo_a;
+      reconditioning.South = cryo_b;
       reconditioning.East = cryo_c;
+      reconditioning.West = cryo_a;
+
 
       //Set current location
       Location currentLocation;
@@ -49,8 +51,11 @@ public class InteractiveFiction {
       bool playing = true;
       while(playing) {
         //Print the description of the current location
-        string description = currentLocation.GetDescription();
-        Console.WriteLine(description);
+        if (currentLocation.JustArrived) {
+          string description = currentLocation.GetDescription();
+          Console.WriteLine(description);
+          currentLocation.JustArrived = false;
+        }
 
         //Get command
         Console.Write("> ");
@@ -65,15 +70,19 @@ public class InteractiveFiction {
         if (splitCommands[0].ToLower() == "go") {
           try {
             if (splitCommands[1].ToLower() == "north" && currentLocation.North != null) {
+              currentLocation.JustArrived = true;
               currentLocation = currentLocation.North;
             } else if (splitCommands[1].ToLower() == "south" && currentLocation.South != null) {
+              currentLocation.JustArrived = true;
               currentLocation = currentLocation.South;
             } else if (splitCommands[1].ToLower() == "east" && currentLocation.East != null) {
+              currentLocation.JustArrived = true;
               currentLocation = currentLocation.East;
             } else if (splitCommands[1].ToLower() == "west" && currentLocation.West != null) {
+              currentLocation.JustArrived = true;
               currentLocation = currentLocation.West;
             } else {
-              Console.WriteLine("You tried to go to the " + splitCommands[1] + " and there was nothing to the " + splitCommands[1]);
+              Console.WriteLine("You tried to go to the " + splitCommands[1] + " and there was nothing to the " + splitCommands[1] + ".");
             }
           }
           // EXCEPTION: Location not specified
