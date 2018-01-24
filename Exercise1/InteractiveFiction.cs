@@ -8,25 +8,42 @@ public class InteractiveFiction {
 
     public static void PlayGame() {
       //Create our game world
-      Location field = new Location("The Field");
-      field.Description = "You are standing in a field. You like it here.";
+      Location cryo_a = new Location("Cryosleep A");
+      cryo_a.Description = "A frigid room with a number of large cylinders. The placard indicates this is Cryosleep Room A.";
 
-      Location tower = new Location("The TOWER");
-      tower.Description = "The tower looms over you.";
+      Location cryo_b = new Location("Cryosleep B");
+      cryo_b.Description = "A frigid room with a number of large cylinders. The placard indicates this is Cryosleep Room B. This is where you woke up.";
 
-      //Link all of our locations together
-      field.North = tower;
-      tower.South = field;
+      Location cryo_c = new Location("Cryosleep C");
+      cryo_c.Description = "A frigid room with a number of large cylinders. The placard indicates this is Cryosleep Room C.";
 
+      Location reconditioning = new Location("Reconditioning Room");
+      reconditioning.Description = "A room with what looks to be a variety of medical equipment. There are lockers to your left and your right.";
+
+      //Location linkages
+
+      //cryo_a
+      cryo_a.East = reconditioning;
+
+      //cryo_b
+      cryo_b.North = reconditioning;
+
+      //cryo_c
+      cryo_c.West = reconditioning;
+
+      //reconditioning
+      reconditioning.West = cryo_a;
+      reconditioning.East = cryo_c;
+
+      //Set current location
       Location currentLocation;
-      currentLocation = field;
+      currentLocation = cryo_b;
 
       //Create the inventory
       List<Item> inventory = new List<Item>();
-      Item torch = new Item("Torch");
-      Item sword = new Item("Sword");
-      inventory.Add(torch);
-      inventory.Add(sword);
+      Item widget = new Item("Widget");
+      widget.Details = "A widget.";
+      inventory.Add(widget);
 
       //Game loop
       bool playing = true;
@@ -35,33 +52,57 @@ public class InteractiveFiction {
         string description = currentLocation.GetDescription();
         Console.WriteLine(description);
 
-        //Get a command
+        //Get command
         Console.Write("> ");
         string command = Console.ReadLine();
 
-        //Process the command
+        //Process command
         string[] splitCommands = command.Split(' ');
 
-        //Execute the command
+        //Execute command...
+
+        //Move to a new location
         if (splitCommands[0].ToLower() == "go") {
-          if (splitCommands[1].ToLower() == "north" && currentLocation.North != null) {
-            currentLocation = currentLocation.North;
-          } else if (splitCommands[1].ToLower() == "south" && currentLocation.South != null) {
-            currentLocation = currentLocation.South;
-          } else if (splitCommands[1].ToLower() == "east" && currentLocation.East != null) {
-            currentLocation = currentLocation.East;
-          } else if (splitCommands[1].ToLower() == "west" && currentLocation.West != null) {
-            currentLocation = currentLocation.West;
-          } else {
-            Console.WriteLine("You tried to go to the " + splitCommands[1] + " and there was nothing to the " + splitCommands[1]);
+          try {
+            if (splitCommands[1].ToLower() == "north" && currentLocation.North != null) {
+              currentLocation = currentLocation.North;
+            } else if (splitCommands[1].ToLower() == "south" && currentLocation.South != null) {
+              currentLocation = currentLocation.South;
+            } else if (splitCommands[1].ToLower() == "east" && currentLocation.East != null) {
+              currentLocation = currentLocation.East;
+            } else if (splitCommands[1].ToLower() == "west" && currentLocation.West != null) {
+              currentLocation = currentLocation.West;
+            } else {
+              Console.WriteLine("You tried to go to the " + splitCommands[1] + " and there was nothing to the " + splitCommands[1]);
+            }
+          }
+          // EXCEPTION: Location not specified
+          catch (IndexOutOfRangeException) {
+            Console.WriteLine("Please choose a location to navigate to.");
           }
         }
 
+        //Check inventory
         if (splitCommands[0].ToLower() == "inventory") {
           Console.WriteLine("--- INVENTORY ---");
           //Loop through everything in the inventory and print out its name
           foreach(Item item in inventory) {
             Console.WriteLine("\t" + item.Name);
+          }
+        }
+
+        //Examine item
+        if (splitCommands[0].ToLower() == "examine") {
+          try {
+            foreach(var item in inventory) {
+              if (splitCommands[1].ToLower() == item.Name.ToLower()) {
+                Console.WriteLine(item.Details);
+              }
+            }
+          }
+          // EXCEPTION: Item not specified
+          catch (IndexOutOfRangeException) {
+            Console.WriteLine("Please choose an item to examine.");
           }
         }
 
