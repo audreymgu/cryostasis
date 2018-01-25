@@ -22,8 +22,37 @@ public class InteractiveFiction {
 
       reconditioning.Examination = "You cautiously look around the room; it appears to be connected on three sides to rooms that appear to have served a similar purpose to the room in which you woke up. While the windows to Cryosleep B and Cryosleep C allow you to peer inside, the window to Cryosleep A is completely frosted over. Checking the lockers on your right reveals an odd looking suit and a thin red card.";
 
+      Location hallway_n = new Location("North Hallway");
+      hallway_n.Description = "A long hallway running from West to East, opposite the South Hallway.";
+
       Location hallway_s = new Location("South Hallway");
       hallway_s.Description = "A long hallway running from West to East.";
+
+      Location hallway_e = new Location("East Hallway");
+      hallway_e.Description = "A long hallway running from North to South.";
+
+      Location hallway_w = new Location("West Hallway");
+      hallway_w.Description = "A long hallway running from North to South.";
+
+      Location corner_nw = new Location("Northwest Corner");
+      corner_nw.Description = "The northwest corner of the main living quarters.";
+
+      Location corner_ne = new Location("Northeast Corner");
+      corner_ne.Description = "The northeast corner of the main living quarters.";
+
+      Location corner_sw = new Location("Southwest Corner");
+      corner_sw.Description = "The southwest corner of the main living quarters.";
+
+      Location corner_se = new Location("Southeast Corner");
+      corner_se.Description = "The southeast corner of the main living quarters.";
+
+      Location livingQuarters = new Location("Living Quarters");
+      corner_se.Description = "The main atrium of the living quarters. The furniture and fixtures are in complete disarray.";
+
+      Location elevator = new Location("Elevator");
+
+      Location adminRoom = new Location("Administrator's Room");
+      adminRoom.Description = "A small, non-descript room. A computer sits at the desk.";
 
       //Location linkages
 
@@ -47,6 +76,54 @@ public class InteractiveFiction {
       reconditioning.WestLocked = true;
       reconditioning.WestKey = "redcard";
 
+      //hallway_n
+      hallway_n.North = elevator;
+      hallway_n.South = livingQuarters;
+      hallway_n.East = corner_ne;
+      hallway_n.West = corner_nw;
+
+      //hallway_s
+      hallway_s.North = livingQuarters;
+      hallway_s.South = reconditioning;
+      hallway_s.East = corner_se;
+      hallway_s.West = corner_sw;
+
+      //hallway_e
+      hallway_e.North = corner_ne;
+      hallway_e.South = corner_se;
+      hallway_e.West = livingQuarters;
+
+      //hallway_w
+      hallway_w.North = corner_nw;
+      hallway_w.South = corner_sw;
+      hallway_w.East = livingQuarters;
+
+      //corner_nw
+      corner_nw.LockExists = true;
+      corner_nw.South = hallway_w;
+      corner_nw.East = hallway_n;
+      corner_nw.West = adminRoom;
+      corner_nw.WestLocked = true;
+      corner_nw.WestKey = "redcard";
+
+      //corner_ne
+      corner_ne.South = hallway_e;
+      corner_ne.West = hallway_n;
+
+      //corner_sw
+      corner_sw.North = hallway_w;
+      corner_sw.East = hallway_s;
+
+      //corner_se
+      corner_se.North = hallway_e;
+      corner_se.West = hallway_s;
+
+      //livingQuarters
+      livingQuarters.North = hallway_n;
+      livingQuarters.South = hallway_s;
+      livingQuarters.East = hallway_e;
+      livingQuarters.West = hallway_w;
+
       //Set current location
       Location currentLocation;
       currentLocation = cryo_b;
@@ -65,6 +142,21 @@ public class InteractiveFiction {
       Item rcard = new Item("RedCard");
       rcard.Details = "A small red card. The words EMPLOYEE ACCESS are emblazoned in white lettering across one side.";
       reconditioning.RoomContains.Add(rcard);
+
+      Item computer = new Item("Computer");
+      computer.Details = "An old, beige-box computer. It uses a CRT screen.";
+      computer.UseItem = "When you press the power button, the computer drowsily awakes from its slumber. You feel someone watching you. Wheeling around, you come face to face with a hologram.";
+      adminRoom.EnvItems.Add(computer);
+
+      //Create characters
+      Character hologram = new Character("Hologram");
+      hologram.Dialogue = "You must go. There's no time. 1. What do you mean?/n  2. Yeah, no kidding./n~ I don't have time to explain. Take the elevator in the north hallway. You have to leave immediately./n~ Good, I don't need to tell you twice. We can talk later, but now you need to leave. It's not safe here./n *** Choose a response ***/n  1. OK./n~ EOD";
+      adminRoom.Characters.Add(hologram);
+      // string[] hologram_chat = hologram.LoadDialogue();
+      //
+      // Console.WriteLine(hologram_chat[0]);
+      // Console.WriteLine("meep");
+      // Console.WriteLine(hologram_chat[1]);
 
       //Game loop
       bool playing = true;
@@ -179,6 +271,23 @@ public class InteractiveFiction {
           }
         }
 
+        //Use environmental items
+        if (splitCommands[0].ToLower() == "use") {
+          try {
+            Item match = null;
+            foreach(var item in currentLocation.EnvItems) {
+              if (splitCommands[1].ToLower() == item.Name.ToLower()) {
+                match = item;
+              }
+            }
+            Console.WriteLine(match.UseItem);
+          }
+          catch (IndexOutOfRangeException) {
+            Console.WriteLine("Please choose an item to use.");
+          }
+        }
+
+
         //Examine things more closely
         if (splitCommands[0].ToLower() == "examine") {
           try {
@@ -204,6 +313,34 @@ public class InteractiveFiction {
           }
         }
 
+        // Speak with characters
+        if (splitCommands[0].ToLower() == "speak" && splitCommands[1].ToLower() == "with") {
+          try {
+            foreach(var character in currentLocation.Characters) {
+              if (splitCommands[2].ToLower() == character.Name.ToLower()) {
+                Console.WriteLine(character.Dialogue);
+              }
+            }
+          }
+          catch (IndexOutOfRangeException) {
+            Console.WriteLine("Please choose a character to speak to.");
+          }
+        }
+
+        //Endings
+        if (currentLocation == cryo_a) {
+          Console.WriteLine("Against your better judgment, you go into Cryosleep A. The cryogenic chemicals that have leaked from the holding cells immediately engulf your body. You freeze to death almost immediately.");
+          Console.WriteLine("*** GAME OVER ***");
+          playing = false;
+        }
+
+        if (currentLocation == elevator) {
+          Console.WriteLine("You reach the elevator in the middle of the north hallway. As you take it up to the next floor, you hear noises in the vents.");
+          Console.WriteLine("*** END OF LEVEL ***");
+          playing = false;
+        }
+
+        //Exit the game
         if (splitCommands[0].ToLower() == "exit") {
           playing = false;
         }

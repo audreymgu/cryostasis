@@ -22,6 +22,8 @@ public class Location {
 
   //Items and Interactive Objects
   public List<Item> RoomContains;
+  public List<Item> EnvItems;
+  public List<Character> Characters;
 
   //Mapping
   public Location North;
@@ -34,6 +36,8 @@ public class Location {
     this.Name = name;
     this.JustArrived = true;
     this.RoomContains = new List<Item>();
+    this.EnvItems = new List<Item>();
+    this.Characters = new List<Character>();
   }
 
   public string GetDescription() {
